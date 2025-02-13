@@ -30,7 +30,7 @@ public class RestTemplateConfig {
             @Autowired RestTemplateLoggingInterceptor restTemplateLoggingInterceptor,
             @Autowired(required = false)
                     HmacSignatureHeaderInterceptor hmacSignatureHeaderInterceptor,
-            @Value("${terraformboot.webhook.hmac.request.signing.enabled}")
+            @Value("${terra.boot.webhook.hmac.request.signing.enabled}")
                     boolean isHmacRequestSigningEnabled) {
         this.restTemplateLoggingInterceptor = restTemplateLoggingInterceptor;
         this.hmacSignatureHeaderInterceptor = hmacSignatureHeaderInterceptor;
