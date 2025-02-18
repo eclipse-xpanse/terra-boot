@@ -33,7 +33,7 @@ public class TerraformDestroyFromDirectoryRequest {
             description =
                     "Key-value pairs of regular variables that must be used to execute the "
                             + "Terraform request.")
-    private Map<String, Object> variables;
+    private Map<String, String> variables;
 
     @Schema(
             description =
