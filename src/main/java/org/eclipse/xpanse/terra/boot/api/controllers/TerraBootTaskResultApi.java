@@ -13,16 +13,12 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.xpanse.terra.boot.models.response.ReFetchResult;
-import org.eclipse.xpanse.terra.boot.models.response.ReFetchState;
-import org.eclipse.xpanse.terra.boot.models.response.TerraformResult;
 import org.eclipse.xpanse.terra.boot.terraform.service.TerraformResultPersistenceManage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,7 +53,7 @@ public class TerraBootTaskResultApi {
                             + "receives a failure while sending the terraform result via callback.")
     @GetMapping(value = "/result/{requestId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<TerraformResult> getStoredTaskResultByRequestId(
+    public ReFetchResult getStoredTaskResultByRequestId(
             @Parameter(name = "requestId", description = "id of the request")
                     @PathVariable("requestId")
                     @NotNull
@@ -87,33 +83,10 @@ public class TerraBootTaskResultApi {
         List<ReFetchResult> reFetchResults = new ArrayList<>();
         requestIds.forEach(
                 requestId -> {
-                    try {
-                        ResponseEntity<TerraformResult> result =
-                                terraformResultPersistenceManage.retrieveTerraformResultByRequestId(
-                                        requestId);
-                        if (result.getStatusCode() == HttpStatus.OK
-                                && Objects.nonNull(result.getBody())) {
-                            reFetchResults.add(
-                                    ReFetchResult.builder()
-                                            .terraformResult(result.getBody())
-                                            .state(ReFetchState.OK)
-                                            .build());
-                        } else {
-                            reFetchResults.add(
-                                    ReFetchResult.builder()
-                                            .state(
-                                                    ReFetchState
-                                                            .RESULT_ALREADY_RETURNED_OR_REQUEST_ID_INVALID)
-                                            .build());
-                        }
-                    } catch (Exception e) {
-                        reFetchResults.add(
-                                ReFetchResult.builder()
-                                        .state(
-                                                ReFetchState
-                                                        .RESULT_ALREADY_RETURNED_OR_REQUEST_ID_INVALID)
-                                        .build());
-                    }
+                    ReFetchResult reFetchResult =
+                            terraformResultPersistenceManage.retrieveTerraformResultByRequestId(
+                                    requestId);
+                    reFetchResults.add(reFetchResult);
                 });
         return reFetchResults;
     }
