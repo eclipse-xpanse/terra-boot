@@ -21,10 +21,10 @@ import org.springframework.boot.test.context.SpringBootTest;
             TerraformVersionsFetcher.class,
             SystemCmd.class
         },
-        properties = {"support.default.terraform.versions.only=false"})
+        properties = {"support.default.terraform.versions.only=true"})
 class TerraformInstallerTest {
 
-    @Value("${terraform.default.supported.versions:1.6.0,1.7.0,1.8.0,1.9.0}")
+    @Value("${terraform.default.supported.versions:1.6.0,1.7.0,1.8.0,1.9.0,1.10.0}")
     private String terraformVersions;
 
     @Resource private TerraformInstaller installer;
@@ -42,7 +42,7 @@ class TerraformInstallerTest {
         String terraformPath = installer.getExecutorPathThatMatchesRequiredVersion(requiredVersion);
         assertEquals("terraform", terraformPath);
 
-        String requiredVersion1 = "= 1.6.0";
+        String requiredVersion1 = "= 1.7.0";
         String[] operatorAndNumber1 =
                 versionHelper.getOperatorAndNumberFromRequiredVersion(requiredVersion1);
         String terraformPath1 =
@@ -51,7 +51,7 @@ class TerraformInstallerTest {
                 versionHelper.checkIfExecutorIsMatchedRequiredVersion(
                         new File(terraformPath1), operatorAndNumber1[0], operatorAndNumber1[1]));
 
-        String requiredVersion2 = "<= v1.5.9";
+        String requiredVersion2 = "<= v1.6.0";
         String[] operatorAndNumber2 =
                 versionHelper.getOperatorAndNumberFromRequiredVersion(requiredVersion2);
         String terraformPath2 =
@@ -60,7 +60,7 @@ class TerraformInstallerTest {
                 versionHelper.checkIfExecutorIsMatchedRequiredVersion(
                         new File(terraformPath2), operatorAndNumber2[0], operatorAndNumber2[1]));
 
-        String requiredVersion3 = ">= v1.9.5";
+        String requiredVersion3 = ">= v1.9.0";
         String[] operatorAndNumber3 =
                 versionHelper.getOperatorAndNumberFromRequiredVersion(requiredVersion3);
         String terraformPath3 =

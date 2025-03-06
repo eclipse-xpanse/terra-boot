@@ -27,6 +27,16 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class TerraformApiExceptionHandler {
 
+    /** Exception handler for IllegalArgumentException. */
+    @ExceptionHandler({IllegalArgumentException.class})
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ResponseBody
+    public Response handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.error("handleIllegalArgumentException: ", ex);
+        return Response.errorResponse(
+                ResultType.UNPROCESSABLE_ENTITY, Collections.singletonList(ex.getMessage()));
+    }
+
     /** Exception handler for TerraformExecutorException. */
     @ExceptionHandler({TerraformExecutorException.class})
     @ResponseStatus(HttpStatus.BAD_GATEWAY)
