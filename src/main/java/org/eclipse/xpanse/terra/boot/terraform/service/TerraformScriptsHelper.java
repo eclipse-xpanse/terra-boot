@@ -53,12 +53,22 @@ public class TerraformScriptsHelper {
      * @return workspace path for the Terraform deployment task.
      */
     public String buildTaskWorkspace(String taskId) {
-        File ws = new File(getModuleParentDirectoryPath(), taskId);
+        File ws = getTaskWorkspace(taskId);
         if (!ws.exists() && !ws.mkdirs()) {
             throw new TerraformExecutorException(
                     "Create task workspace failed, File path not created: " + ws.getAbsolutePath());
         }
         return ws.getAbsolutePath();
+    }
+
+    /**
+     * Get the workspace path for the Terraform deployment task.
+     *
+     * @param taskId id of the Terraform deployment task.
+     * @return path of the workspace.
+     */
+    public File getTaskWorkspace(String taskId) {
+        return new File(getModuleParentDirectoryPath(), taskId);
     }
 
     /**

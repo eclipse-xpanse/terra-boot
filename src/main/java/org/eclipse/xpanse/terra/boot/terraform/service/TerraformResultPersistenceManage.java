@@ -107,7 +107,7 @@ public class TerraformResultPersistenceManage {
     }
 
     private boolean isDeployingInProgress(UUID requestId) {
-        String workspace = scriptsHelper.buildTaskWorkspace(requestId.toString());
+        File workspace = scriptsHelper.getTaskWorkspace(requestId.toString());
         File tfLockFile = new File(workspace, TF_LOCK_FILE_NAME);
         return tfLockFile.exists() && tfLockFile.isFile();
     }

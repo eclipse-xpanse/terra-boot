@@ -9,8 +9,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -56,7 +54,6 @@ public class TerraBootTaskResultApi {
     public ReFetchResult getStoredTaskResultByRequestId(
             @Parameter(name = "requestId", description = "id of the request")
                     @PathVariable("requestId")
-                    @NotNull
                     UUID requestId) {
         return terraformResultPersistenceManage.retrieveTerraformResultByRequestId(requestId);
     }
@@ -73,9 +70,7 @@ public class TerraBootTaskResultApi {
     @Operation(description = "Method to batch retrieve stored terraform result from terra-boot.")
     @PostMapping(value = "/results/batch", consumes = MediaType.APPLICATION_JSON_VALUE)
     public List<ReFetchResult> getBatchTaskResults(
-            @Parameter(description = "List of request IDs")
-                    @RequestBody
-                    @NotEmpty(message = "Request IDs list cannot be empty")
+            @Parameter(description = "List of request IDs", required = true) @RequestBody
                     List<UUID> requestIds) {
         if (CollectionUtils.isEmpty(requestIds)) {
             throw new IllegalArgumentException("requestIds cannot be empty.");
