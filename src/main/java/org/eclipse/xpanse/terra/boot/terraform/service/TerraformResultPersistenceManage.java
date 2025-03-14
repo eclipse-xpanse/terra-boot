@@ -30,7 +30,7 @@ public class TerraformResultPersistenceManage {
     @Value("${failed.callback.response.store.location}")
     private String failedCallbackStoreLocation;
 
-    @Resource private TerraformScriptsHelper scriptsHelper;
+    @Resource private TerraformScriptsDirectoryHelper scriptsHelper;
     @Resource private TerraformResultSerializer terraformResultSerializer;
 
     /**

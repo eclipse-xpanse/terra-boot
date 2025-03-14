@@ -7,14 +7,22 @@ package org.eclipse.xpanse.terra.boot.models.request.directory;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.eclipse.xpanse.terra.boot.models.request.webhook.WebhookConfig;
 
-/** Data model for the terraform async modify requests. */
+/**
+ * The terraform async request for executing command based on the directory where the scripts file
+ * exist.
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class TerraformAsyncModifyFromDirectoryRequest extends TerraformModifyFromDirectoryRequest {
+public class TerraformAsyncRequestWithScriptsDirectory extends TerraformRequestWithScriptsDirectory
+        implements Serializable {
+
+    @Serial private static final long serialVersionUID = 3604091444011192314L;
 
     @NotNull
     @Schema(description = "Configuration information of webhook.")

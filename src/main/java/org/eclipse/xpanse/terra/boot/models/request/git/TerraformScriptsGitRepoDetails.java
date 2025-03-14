@@ -7,11 +7,15 @@ package org.eclipse.xpanse.terra.boot.models.request.git;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
 import lombok.Data;
 
 /** Data model for defining the GIT repo information to fetch the scripts. */
 @Data
-public class TerraformScriptGitRepoDetails {
+public class TerraformScriptsGitRepoDetails implements Serializable {
+
+    @Serial private static final long serialVersionUID = -8723117896885097332L;
 
     @NotNull
     @Schema(description = "url of the GIT repo. This repo will be cloned.")

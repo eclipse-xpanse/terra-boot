@@ -3,19 +3,23 @@
  * SPDX-FileCopyrightText: Huawei Inc.
  */
 
-package org.eclipse.xpanse.terra.boot.models.request.directory;
+package org.eclipse.xpanse.terra.boot.models.request.git;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.eclipse.xpanse.terra.boot.models.request.webhook.WebhookConfig;
 
-/** Data model for the terraform async destroy requests. */
+/** The terraform async request for executing command based on the scripts git repo details. */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class TerraformAsyncDestroyFromDirectoryRequest
-        extends TerraformDestroyFromDirectoryRequest {
+public class TerraformAsyncRequestWithScriptsGitRepo extends TerraformRequestWithScriptsGitRepo
+        implements Serializable {
+
+    @Serial private static final long serialVersionUID = 6509125273252260415L;
 
     @NotNull
     @Schema(description = "Configuration information of webhook.")

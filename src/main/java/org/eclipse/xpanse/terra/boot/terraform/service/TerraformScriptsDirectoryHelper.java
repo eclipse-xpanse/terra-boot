@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.xpanse.terra.boot.models.exceptions.TerraformExecutorException;
-import org.eclipse.xpanse.terra.boot.models.request.git.TerraformScriptGitRepoDetails;
+import org.eclipse.xpanse.terra.boot.models.request.git.TerraformScriptsGitRepoDetails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -31,7 +31,7 @@ import org.springframework.util.CollectionUtils;
 /** bean to host all generic methods shared from different types of Terraform deployers. */
 @Slf4j
 @Component
-public class TerraformScriptsHelper {
+public class TerraformScriptsDirectoryHelper {
 
     public static final String TF_SCRIPT_FILE_EXTENSION = ".tf";
     private static final String TF_STATE_FILE_NAME = "terraform.tfstate";
@@ -44,7 +44,7 @@ public class TerraformScriptsHelper {
     @Value("${clean.workspace.after.deployment.enabled:true}")
     private Boolean cleanWorkspaceAfterDeployment;
 
-    @Resource private ScriptsGitRepoManage scriptsGitRepoManage;
+    @Resource private TerraformScriptsGitRepoHelper terraformScriptsGitRepoHelper;
 
     /**
      * Create workspace for the Terraform deployment task.
@@ -121,9 +121,9 @@ public class TerraformScriptsHelper {
      * @return list of script files.
      */
     public List<File> prepareDeploymentFilesWithGitRepo(
-            String taskWorkspace, TerraformScriptGitRepoDetails gitRepoDetails, String tfState) {
+            String taskWorkspace, TerraformScriptsGitRepoDetails gitRepoDetails, String tfState) {
         List<File> scriptFiles =
-                scriptsGitRepoManage.checkoutScripts(taskWorkspace, gitRepoDetails);
+                terraformScriptsGitRepoHelper.checkoutScripts(taskWorkspace, gitRepoDetails);
         List<File> projectFiles = new ArrayList<>(scriptFiles);
         if (StringUtils.isNotBlank(tfState)) {
             File tfStateFile = createTfStateFile(taskWorkspace, tfState);
