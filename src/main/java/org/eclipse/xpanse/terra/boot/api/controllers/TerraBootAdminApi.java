@@ -7,11 +7,10 @@ package org.eclipse.xpanse.terra.boot.api.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.xpanse.terra.boot.models.TerraBootSystemStatus;
-import org.eclipse.xpanse.terra.boot.terraform.service.TerraformDirectoryService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.eclipse.xpanse.terra.boot.terraform.service.TerraformRequestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,14 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/terra-boot")
 public class TerraBootAdminApi {
 
-    private final TerraformDirectoryService terraformDirectoryService;
-
-    @Autowired
-    public TerraBootAdminApi(
-            @Qualifier("terraformDirectoryService")
-                    TerraformDirectoryService terraformDirectoryService) {
-        this.terraformDirectoryService = terraformDirectoryService;
-    }
+    @Resource private TerraformRequestService requestService;
 
     /**
      * Method to find out the current state of the system.
@@ -46,6 +38,6 @@ public class TerraBootAdminApi {
     @GetMapping(value = "/health", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public TerraBootSystemStatus healthCheck() {
-        return terraformDirectoryService.tfHealthCheck();
+        return requestService.healthCheck();
     }
 }

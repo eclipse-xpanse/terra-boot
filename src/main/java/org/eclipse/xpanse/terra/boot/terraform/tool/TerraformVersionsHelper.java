@@ -45,7 +45,8 @@ public class TerraformVersionsHelper {
     public static final String TERRAFORM_REQUIRED_VERSION_REGEX =
             "^(=|>=|<=)\\s*[vV]?\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$";
 
-    private static final Pattern TERRAFORM_REQUIRED_VERSION_PATTERN =
+    // Terraform version required version regex.*/
+    public static final Pattern TERRAFORM_REQUIRED_VERSION_PATTERN =
             Pattern.compile(TERRAFORM_REQUIRED_VERSION_REGEX);
     private static final Pattern TERRAFORM_VERSION_OUTPUT_PATTERN =
             Pattern.compile("^Terraform\\s+v(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})\\b");

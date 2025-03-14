@@ -5,7 +5,7 @@
 
 package org.eclipse.xpanse.terra.boot.terraform.service;
 
-import static org.eclipse.xpanse.terra.boot.terraform.service.TerraformScriptsHelper.TF_SCRIPT_FILE_EXTENSION;
+import static org.eclipse.xpanse.terra.boot.terraform.service.TerraformScriptsDirectoryHelper.TF_SCRIPT_FILE_EXTENSION;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.xpanse.terra.boot.models.exceptions.GitRepoCloneException;
 import org.eclipse.xpanse.terra.boot.models.exceptions.InvalidTerraformScriptsException;
-import org.eclipse.xpanse.terra.boot.models.request.git.TerraformScriptGitRepoDetails;
+import org.eclipse.xpanse.terra.boot.models.request.git.TerraformScriptsGitRepoDetails;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.retry.support.RetrySynchronizationManager;
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 /** Bean to manage GIT clone. */
 @Slf4j
 @Component
-public class ScriptsGitRepoManage {
+public class TerraformScriptsGitRepoHelper {
 
     /**
      * Method to check out scripts from a GIT repo.
@@ -41,7 +41,8 @@ public class ScriptsGitRepoManage {
             retryFor = GitRepoCloneException.class,
             maxAttemptsExpression = "${spring.retry.max-attempts}",
             backoff = @Backoff(delayExpression = "${spring.retry.delay-millions}"))
-    public List<File> checkoutScripts(String workspace, TerraformScriptGitRepoDetails scriptsRepo) {
+    public List<File> checkoutScripts(
+            String workspace, TerraformScriptsGitRepoDetails scriptsRepo) {
         log.info(
                 "Clone GIT repo to get the deployment scripts. Retry number: "
                         + Objects.requireNonNull(RetrySynchronizationManager.getContext())
@@ -72,7 +73,8 @@ public class ScriptsGitRepoManage {
         return files;
     }
 
-    private List<File> getSourceFiles(String workspace, TerraformScriptGitRepoDetails scriptsRepo) {
+    private List<File> getSourceFiles(
+            String workspace, TerraformScriptsGitRepoDetails scriptsRepo) {
         List<File> sourceFiles = new ArrayList<>();
         File directory =
                 new File(
@@ -96,7 +98,7 @@ public class ScriptsGitRepoManage {
     }
 
     private void validateIfFolderContainsTerraformScripts(
-            List<File> files, TerraformScriptGitRepoDetails scriptsRepo) {
+            List<File> files, TerraformScriptsGitRepoDetails scriptsRepo) {
         boolean isScriptsExisted =
                 files.stream().anyMatch(file -> file.getName().endsWith(TF_SCRIPT_FILE_EXTENSION));
         if (!isScriptsExisted) {

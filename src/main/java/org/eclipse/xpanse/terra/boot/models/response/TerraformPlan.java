@@ -3,7 +3,7 @@
  * SPDX-FileCopyrightText: Huawei Inc.
  */
 
-package org.eclipse.xpanse.terra.boot.models.plan;
+package org.eclipse.xpanse.terra.boot.models.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
