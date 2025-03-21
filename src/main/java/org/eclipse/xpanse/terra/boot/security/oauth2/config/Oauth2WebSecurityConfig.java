@@ -63,6 +63,9 @@ public class Oauth2WebSecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-secret}")
     private String clientSecret;
 
+    @Value("${springwolf.path.base:/springwolf}")
+    private String springwolfPathBase;
+
     @Resource private Oauth2JwtDecoder oauth2JwtDecoder;
 
     /**
@@ -80,6 +83,9 @@ public class Oauth2WebSecurityConfig {
         http.authorizeHttpRequests(
                 arc -> {
                     arc.requestMatchers(AntPathRequestMatcher.antMatcher("/swagger-ui/**"))
+                            .permitAll();
+                    arc.requestMatchers(
+                                    AntPathRequestMatcher.antMatcher(springwolfPathBase + "/**"))
                             .permitAll();
                     arc.requestMatchers(AntPathRequestMatcher.antMatcher("/v3/**")).permitAll();
                     arc.requestMatchers(AntPathRequestMatcher.antMatcher("/error")).permitAll();

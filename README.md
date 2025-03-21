@@ -106,12 +106,12 @@ Use the spring boot's dev profile to use default values that are just for non-pr
 
 #### From Command Line
 
-1.Start with oauth
+1. Start with oauth profile
 
 ```shell
 ./mvmw clean install -DskipTests
 $ java -jar target/terra-boot-*.jar\
---spring.profiles.active=oauth \
+--spring.profiles.active=oauth,dev \
 --authorization.token.type=${token-type} \
 --authorization.server.endpoint=${server-endpoint} \
 --authorization.api.client.id=${client-id} \
@@ -123,7 +123,7 @@ $ java -jar target/terra-boot-*.jar\
 
 ```shell
 ./mvmw clean install -DskipTests
-$ java -jar target/terra-boot-*.jar
+$ java -jar --spring.profiles.active=dev target/terra-boot-*.jar
 ```
 
 #### From IDE
@@ -146,6 +146,39 @@ API can be accessed using the following URLs
 http://localhost:9090
 http://localhost:9090/swagger-ui/index.html
 ```
+
+### AMQP support
+#### Start AMQP Broker
+
+Use RabbitMQ as the default provider for AMQP. Start the broker and create queues using the following command:
+
+```shell
+mkdir -p ~/docker/rabbitmq/data
+docker run -d \
+--user 1000:1000 \
+--name xpanse-rabbitmq \
+-p 5672:5672 \
+-p 15672:15672 \
+-v ~/docker/rabbitmq/data:/var/lib/rabbitmq \
+-e RABBITMQ_DEFAULT_USER=xpanse \
+-e RABBITMQ_DEFAULT_PASS=Xpanse@2023 \
+rabbitmq:4.0.7-management
+```
+Access the RabbitMQ management console at http://localhost:15672 with username `xpanse` and password `Xpanse@2023` after the container is started.
+
+#### Enable AMQP
+Start the application with the `amqp` profile.
+
+```shell
+./mvmw clean install -DskipTests
+$ java -jar --spring.profiles.active=dev,amqp target/terra-boot-*.jar
+```
+
+#### AsyncApi Docs and UI
+
+When the application started with the `amqp` profile, the AsyncApi docs and UI Console are enabled.
+The AsyncApi docs can be accessed at http://localhost:9090/queues/docs.
+The AsyncApi UI can be accessed at http://localhost:9090/queues/asyncapi-ui.html.
 
 ### Production
 

@@ -17,9 +17,11 @@ public enum ResultType {
     UNSUPPORTED_ENUM_VALUE("Unsupported Enum Value"),
     SERVICE_UNAVAILABLE("Service Unavailable"),
     UNAUTHORIZED("Unauthorized"),
+    INVALID_TERRAFORM_REQUEST("Invalid Terraform Request"),
     INVALID_GIT_REPO_DETAILS("Invalid Git Repo Details"),
     INVALID_TERRAFORM_TOOL("Invalid Terraform Tool"),
     INVALID_TERRAFORM_SCRIPTS("Invalid Terraform Scripts"),
+    SEND_AMQP_MESSAGE_FAILED("Send Amqp Message Failed"),
     RESULT_ALREADY_RETURNED_OR_REQUEST_ID_INVALID("Result Already Returned or RequestId Invalid");
 
     private final String value;

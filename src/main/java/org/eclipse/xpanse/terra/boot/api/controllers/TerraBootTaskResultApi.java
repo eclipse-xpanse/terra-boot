@@ -15,6 +15,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.xpanse.terra.boot.models.response.ReFetchResult;
 import org.eclipse.xpanse.terra.boot.terraform.service.TerraformResultPersistenceManage;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** REST controller for manage the task form terra-boot. */
 @Slf4j
+@Profile("!amqp")
 @CrossOrigin
 @RestController
 @RequestMapping("/terra-boot/task")

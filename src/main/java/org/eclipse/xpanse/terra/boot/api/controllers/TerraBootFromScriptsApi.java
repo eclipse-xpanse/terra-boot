@@ -5,26 +5,18 @@
 
 package org.eclipse.xpanse.terra.boot.api.controllers;
 
-import static org.eclipse.xpanse.terra.boot.logging.CustomRequestIdGenerator.REQUEST_ID;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import java.util.Objects;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.xpanse.terra.boot.models.plan.TerraformPlan;
-import org.eclipse.xpanse.terra.boot.models.plan.TerraformPlanWithScriptsRequest;
-import org.eclipse.xpanse.terra.boot.models.request.scripts.TerraformAsyncDeployFromScriptsRequest;
-import org.eclipse.xpanse.terra.boot.models.request.scripts.TerraformAsyncDestroyFromScriptsRequest;
-import org.eclipse.xpanse.terra.boot.models.request.scripts.TerraformAsyncModifyFromScriptsRequest;
-import org.eclipse.xpanse.terra.boot.models.request.scripts.TerraformDeployWithScriptsRequest;
-import org.eclipse.xpanse.terra.boot.models.request.scripts.TerraformDestroyWithScriptsRequest;
-import org.eclipse.xpanse.terra.boot.models.request.scripts.TerraformModifyWithScriptsRequest;
+import org.eclipse.xpanse.terra.boot.models.request.scripts.TerraformAsyncRequestWithScripts;
+import org.eclipse.xpanse.terra.boot.models.request.scripts.TerraformRequestWithScripts;
+import org.eclipse.xpanse.terra.boot.models.response.TerraformPlan;
 import org.eclipse.xpanse.terra.boot.models.response.TerraformResult;
-import org.eclipse.xpanse.terra.boot.models.validation.TerraformValidationResult;
-import org.eclipse.xpanse.terra.boot.terraform.service.TerraformScriptsService;
-import org.slf4j.MDC;
+import org.eclipse.xpanse.terra.boot.models.response.validation.TerraformValidationResult;
+import org.eclipse.xpanse.terra.boot.terraform.service.TerraformRequestService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -38,15 +30,12 @@ import org.springframework.web.bind.annotation.RestController;
 /** API methods implemented by terra-boot. */
 @Slf4j
 @CrossOrigin
+@Profile("!amqp")
 @RestController
 @RequestMapping("/terra-boot/scripts/")
 public class TerraBootFromScriptsApi {
 
-    private final TerraformScriptsService terraformScriptsService;
-
-    public TerraBootFromScriptsApi(TerraformScriptsService terraformScriptsService) {
-        this.terraformScriptsService = terraformScriptsService;
-    }
+    @Resource private TerraformRequestService requestService;
 
     /**
      * Method to validate resources by scripts.
@@ -61,14 +50,8 @@ public class TerraBootFromScriptsApi {
     @PostMapping(value = "/validate", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public TerraformValidationResult validateWithScripts(
-            @Valid @RequestBody TerraformDeployWithScriptsRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        return terraformScriptsService.validateWithScripts(request);
+            @Valid @RequestBody TerraformRequestWithScripts request) {
+        return requestService.handleTerraformValidateRequest(request);
     }
 
     /**
@@ -84,14 +67,8 @@ public class TerraBootFromScriptsApi {
     @PostMapping(value = "/deploy", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public TerraformResult deployWithScripts(
-            @Valid @RequestBody TerraformDeployWithScriptsRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        return terraformScriptsService.deployWithScripts(request, uuid);
+            @Valid @RequestBody TerraformRequestWithScripts request) {
+        return requestService.handleTerraformDeploymentRequest(request);
     }
 
     /**
@@ -107,14 +84,8 @@ public class TerraBootFromScriptsApi {
     @PostMapping(value = "/modify", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public TerraformResult modifyWithScripts(
-            @Valid @RequestBody TerraformModifyWithScriptsRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        return terraformScriptsService.modifyWithScripts(request, uuid);
+            @Valid @RequestBody TerraformRequestWithScripts request) {
+        return requestService.handleTerraformDeploymentRequest(request);
     }
 
     /**
@@ -130,14 +101,8 @@ public class TerraBootFromScriptsApi {
     @PostMapping(value = "/destroy", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public TerraformResult destroyWithScripts(
-            @Valid @RequestBody TerraformDestroyWithScriptsRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        return terraformScriptsService.destroyWithScripts(request, uuid);
+            @Valid @RequestBody TerraformRequestWithScripts request) {
+        return requestService.handleTerraformDeploymentRequest(request);
     }
 
     /** Method to async deploy resources by scripts. */
@@ -149,14 +114,8 @@ public class TerraBootFromScriptsApi {
     @PostMapping(value = "/deploy/async", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void asyncDeployWithScripts(
-            @Valid @RequestBody TerraformAsyncDeployFromScriptsRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        terraformScriptsService.asyncDeployWithScripts(request, uuid);
+            @Valid @RequestBody TerraformAsyncRequestWithScripts request) {
+        requestService.processAsyncDeploymentRequest(request);
     }
 
     /** Method to async modify resources by scripts. */
@@ -168,14 +127,8 @@ public class TerraBootFromScriptsApi {
     @PostMapping(value = "/modify/async", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void asyncModifyWithScripts(
-            @Valid @RequestBody TerraformAsyncModifyFromScriptsRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        terraformScriptsService.asyncModifyWithScripts(request, uuid);
+            @Valid @RequestBody TerraformAsyncRequestWithScripts request) {
+        requestService.processAsyncDeploymentRequest(request);
     }
 
     /** Method to async destroy resources by scripts. */
@@ -187,14 +140,8 @@ public class TerraBootFromScriptsApi {
     @DeleteMapping(value = "/destroy/async", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void asyncDestroyWithScripts(
-            @Valid @RequestBody TerraformAsyncDestroyFromScriptsRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        terraformScriptsService.asyncDestroyWithScripts(request, uuid);
+            @Valid @RequestBody TerraformAsyncRequestWithScripts request) {
+        requestService.processAsyncDeploymentRequest(request);
     }
 
     /**
@@ -211,14 +158,7 @@ public class TerraBootFromScriptsApi {
                     "Get Terraform Plan as JSON string from the list of script files provided")
     @PostMapping(value = "/plan", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public TerraformPlan planWithScripts(
-            @Valid @RequestBody TerraformPlanWithScriptsRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        return terraformScriptsService.getTerraformPlanFromScripts(request, uuid);
+    public TerraformPlan planWithScripts(@Valid @RequestBody TerraformRequestWithScripts request) {
+        return requestService.handleTerraformPlanRequest(request);
     }
 }

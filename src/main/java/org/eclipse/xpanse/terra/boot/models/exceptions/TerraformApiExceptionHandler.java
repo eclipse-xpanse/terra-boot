@@ -11,6 +11,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.xpanse.terra.boot.models.response.Response;
 import org.eclipse.xpanse.terra.boot.models.response.ResultType;
+import org.springframework.amqp.AmqpException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.validation.BindingResult;
@@ -42,6 +43,7 @@ public class TerraformApiExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_GATEWAY)
     @ResponseBody
     public Response handleTerraformExecutorException(TerraformExecutorException ex) {
+        log.error("handleTerraformExecutorException: ", ex);
         return Response.errorResponse(
                 ResultType.TERRAFORM_EXECUTION_FAILED, Collections.singletonList(ex.getMessage()));
     }
@@ -51,6 +53,7 @@ public class TerraformApiExceptionHandler {
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ResponseBody
     public Response handleUnsupportedEnumValueException(UnsupportedEnumValueException ex) {
+        log.error("handleUnsupportedEnumValueException: ", ex);
         return Response.errorResponse(
                 ResultType.UNSUPPORTED_ENUM_VALUE, Collections.singletonList(ex.getMessage()));
     }
@@ -61,6 +64,7 @@ public class TerraformApiExceptionHandler {
     @ResponseBody
     public Response handleMethodArgumentTypeMismatchException(
             MethodArgumentTypeMismatchException ex) {
+        log.error("handleMethodArgumentTypeMismatchException: ", ex);
         return Response.errorResponse(
                 ResultType.UNPROCESSABLE_ENTITY, Collections.singletonList(ex.getMessage()));
     }
@@ -89,16 +93,6 @@ public class TerraformApiExceptionHandler {
                 ResultType.BAD_PARAMETERS, Collections.singletonList(failMessage));
     }
 
-    /** Exception handler for TerraformHealthCheckException. */
-    @ExceptionHandler({TerraformHealthCheckException.class})
-    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
-    public Response handleTerraformHealthCheckException(TerraformHealthCheckException ex) {
-        log.error("TerraformHealthCheckException: ", ex);
-        String failMessage = ex.getMessage();
-        return Response.errorResponse(
-                ResultType.SERVICE_UNAVAILABLE, Collections.singletonList(failMessage));
-    }
-
     /** Exception handler for GitRepoCloneException. */
     @ExceptionHandler({GitRepoCloneException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -114,6 +108,7 @@ public class TerraformApiExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public Response handleInvalidTerraformToolException(InvalidTerraformToolException ex) {
+        log.error("handleInvalidTerraformToolException: ", ex);
         return Response.errorResponse(
                 ResultType.INVALID_TERRAFORM_TOOL, Collections.singletonList(ex.getMessage()));
     }
@@ -123,7 +118,28 @@ public class TerraformApiExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public Response handleInvalidTerraformScriptsException(InvalidTerraformScriptsException ex) {
+        log.error("handleInvalidTerraformScriptsException: ", ex);
         return Response.errorResponse(
                 ResultType.INVALID_TERRAFORM_SCRIPTS, Collections.singletonList(ex.getMessage()));
+    }
+
+    /** Exception handler for InvalidTerraformRequestException. */
+    @ExceptionHandler({InvalidTerraformRequestException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Response handleInvalidTerraformRequestException(InvalidTerraformRequestException ex) {
+        log.error("handleInvalidTerraformRequestException: ", ex);
+        return Response.errorResponse(
+                ResultType.INVALID_TERRAFORM_REQUEST, Collections.singletonList(ex.getMessage()));
+    }
+
+    /** Exception handler for AmqpException. */
+    @ExceptionHandler({AmqpException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Response handleAmqpException(AmqpException ex) {
+        log.error("handleAmqpException: ", ex);
+        return Response.errorResponse(
+                ResultType.INVALID_TERRAFORM_REQUEST, Collections.singletonList(ex.getMessage()));
     }
 }

@@ -7,16 +7,25 @@ package org.eclipse.xpanse.terra.boot.models.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /** Data model for the Terraform command execution results. */
 @Data
 @Builder
-public class TerraformResult {
+@AllArgsConstructor
+@NoArgsConstructor
+public class TerraformResult implements Serializable {
 
+    @Serial private static final long serialVersionUID = 5138160212124102583L;
+
+    @NotNull
     @Schema(description = "Id of the request")
     private UUID requestId;
 

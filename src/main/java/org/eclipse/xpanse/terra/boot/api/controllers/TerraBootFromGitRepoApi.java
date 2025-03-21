@@ -5,26 +5,18 @@
 
 package org.eclipse.xpanse.terra.boot.api.controllers;
 
-import static org.eclipse.xpanse.terra.boot.logging.CustomRequestIdGenerator.REQUEST_ID;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import java.util.Objects;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.xpanse.terra.boot.models.plan.TerraformPlan;
-import org.eclipse.xpanse.terra.boot.models.plan.TerraformPlanFromGitRepoRequest;
-import org.eclipse.xpanse.terra.boot.models.request.git.TerraformAsyncDeployFromGitRepoRequest;
-import org.eclipse.xpanse.terra.boot.models.request.git.TerraformAsyncDestroyFromGitRepoRequest;
-import org.eclipse.xpanse.terra.boot.models.request.git.TerraformAsyncModifyFromGitRepoRequest;
-import org.eclipse.xpanse.terra.boot.models.request.git.TerraformDeployFromGitRepoRequest;
-import org.eclipse.xpanse.terra.boot.models.request.git.TerraformDestroyFromGitRepoRequest;
-import org.eclipse.xpanse.terra.boot.models.request.git.TerraformModifyFromGitRepoRequest;
+import org.eclipse.xpanse.terra.boot.models.request.git.TerraformAsyncRequestWithScriptsGitRepo;
+import org.eclipse.xpanse.terra.boot.models.request.git.TerraformRequestWithScriptsGitRepo;
+import org.eclipse.xpanse.terra.boot.models.response.TerraformPlan;
 import org.eclipse.xpanse.terra.boot.models.response.TerraformResult;
-import org.eclipse.xpanse.terra.boot.models.validation.TerraformValidationResult;
-import org.eclipse.xpanse.terra.boot.terraform.service.TerraformGitRepoService;
-import org.slf4j.MDC;
+import org.eclipse.xpanse.terra.boot.models.response.validation.TerraformValidationResult;
+import org.eclipse.xpanse.terra.boot.terraform.service.TerraformRequestService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -38,15 +30,12 @@ import org.springframework.web.bind.annotation.RestController;
 /** REST controller for running terraform modules from a GIT repo. */
 @Slf4j
 @CrossOrigin
+@Profile("!amqp")
 @RestController
 @RequestMapping("/terra-boot/git")
 public class TerraBootFromGitRepoApi {
 
-    private final TerraformGitRepoService terraformGitRepoService;
-
-    public TerraBootFromGitRepoApi(TerraformGitRepoService terraformGitRepoService) {
-        this.terraformGitRepoService = terraformGitRepoService;
-    }
+    @Resource private TerraformRequestService requestService;
 
     /**
      * Method to validate resources by scripts.
@@ -61,14 +50,8 @@ public class TerraBootFromGitRepoApi {
     @PostMapping(value = "/validate", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public TerraformValidationResult validateScriptsFromGitRepo(
-            @Valid @RequestBody TerraformDeployFromGitRepoRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        return terraformGitRepoService.validateWithScripts(request);
+            @Valid @RequestBody TerraformRequestWithScriptsGitRepo request) {
+        return requestService.handleTerraformValidateRequest(request);
     }
 
     /**
@@ -86,14 +69,8 @@ public class TerraBootFromGitRepoApi {
     @PostMapping(value = "/plan", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public TerraformPlan planFromGitRepo(
-            @Valid @RequestBody TerraformPlanFromGitRepoRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        return terraformGitRepoService.getTerraformPlanFromGitRepo(request, uuid);
+            @Valid @RequestBody TerraformRequestWithScriptsGitRepo request) {
+        return requestService.handleTerraformPlanRequest(request);
     }
 
     /**
@@ -109,14 +86,8 @@ public class TerraBootFromGitRepoApi {
     @PostMapping(value = "/deploy", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public TerraformResult deployFromGitRepo(
-            @Valid @RequestBody TerraformDeployFromGitRepoRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        return terraformGitRepoService.deployFromGitRepo(request, uuid);
+            @Valid @RequestBody TerraformRequestWithScriptsGitRepo request) {
+        return requestService.handleTerraformDeploymentRequest(request);
     }
 
     /**
@@ -132,14 +103,8 @@ public class TerraBootFromGitRepoApi {
     @PostMapping(value = "/modify", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public TerraformResult modifyFromGitRepo(
-            @Valid @RequestBody TerraformModifyFromGitRepoRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        return terraformGitRepoService.modifyFromGitRepo(request, uuid);
+            @Valid @RequestBody TerraformRequestWithScriptsGitRepo request) {
+        return requestService.handleTerraformDeploymentRequest(request);
     }
 
     /**
@@ -155,14 +120,8 @@ public class TerraBootFromGitRepoApi {
     @PostMapping(value = "/destroy", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public TerraformResult destroyFromGitRepo(
-            @Valid @RequestBody TerraformDestroyFromGitRepoRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        return terraformGitRepoService.destroyFromGitRepo(request, uuid);
+            @Valid @RequestBody TerraformRequestWithScriptsGitRepo request) {
+        return requestService.handleTerraformDeploymentRequest(request);
     }
 
     /** Method to async deploy resources from the provided GIT Repo. */
@@ -174,14 +133,8 @@ public class TerraBootFromGitRepoApi {
     @PostMapping(value = "/deploy/async", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void asyncDeployFromGitRepo(
-            @Valid @RequestBody TerraformAsyncDeployFromGitRepoRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        terraformGitRepoService.asyncDeployFromGitRepo(request, uuid);
+            @Valid @RequestBody TerraformAsyncRequestWithScriptsGitRepo request) {
+        requestService.processAsyncDeploymentRequest(request);
     }
 
     /** Method to async modify resources from the provided GIT Repo. */
@@ -193,14 +146,8 @@ public class TerraBootFromGitRepoApi {
     @PostMapping(value = "/modify/async", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void asyncModifyFromGitRepo(
-            @Valid @RequestBody TerraformAsyncModifyFromGitRepoRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        terraformGitRepoService.asyncModifyFromGitRepo(request, uuid);
+            @Valid @RequestBody TerraformAsyncRequestWithScriptsGitRepo request) {
+        requestService.processAsyncDeploymentRequest(request);
     }
 
     /** Method to async destroy resources by scripts. */
@@ -212,13 +159,7 @@ public class TerraBootFromGitRepoApi {
     @DeleteMapping(value = "/destroy/async", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void asyncDestroyFromGitRepo(
-            @Valid @RequestBody TerraformAsyncDestroyFromGitRepoRequest request) {
-        UUID uuid =
-                Objects.nonNull(request.getRequestId())
-                        ? request.getRequestId()
-                        : UUID.randomUUID();
-        MDC.put(REQUEST_ID, uuid.toString());
-        request.setRequestId(uuid);
-        terraformGitRepoService.asyncDestroyFromGitRepo(request, uuid);
+            @Valid @RequestBody TerraformAsyncRequestWithScriptsGitRepo request) {
+        requestService.processAsyncDeploymentRequest(request);
     }
 }
