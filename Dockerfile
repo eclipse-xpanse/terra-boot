@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 
 RUN addgroup -S terra-boot && adduser -S -G terra-boot terra-boot
 RUN apk update && \
